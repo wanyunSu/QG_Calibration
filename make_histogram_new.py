@@ -8,9 +8,9 @@ from make_plot_new import make_plots
 from concurrent.futures import ProcessPoolExecutor
 import functools 
 
-pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_alter/sherpa'
+#pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_alter/sherpa'
 #pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Dec11/herwigangle'
-#pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Dec11/pythia/'
+pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Dec11/pythia/'
 data_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_New/data/'
 pythia_path = Path(pythia_path)
 data_path = Path(data_path)

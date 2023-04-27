@@ -14,13 +14,13 @@ import re
 
 label_pt_bin = [500, 600, 800, 1000, 1200, 1500, 2000]
 # label_var = ["pt", "eta", "ntrk", "width", "c1", "bdt", "newBDT"]
-label_var = ['jet_pt', 'jet_eta', 'jet_nTracks', 'jet_trackWidth', 'jet_trackC1', 'jet_trackBDT', 'GBDT_newScore']
+label_var = ['jet_pt', 'jet_eta', 'jet_nTracks', 'jet_trackWidth', 'GBDT_newScore']
 label_leadingtype = ["LeadingJet", "SubLeadingJet"]
 label_etaregion = ["Forward", "Central"]
 label_jettype = ["Gluon", "Quark", "B_Quark", "C_Quark"]
 label_jettype_data = ["Data"]
 
-reweighting_vars = ['jet_nTracks', 'jet_trackBDT', 'GBDT_newScore'] 
+reweighting_vars = ['jet_nTracks', 'GBDT_newScore'] 
 nominal_keys = [reweighting_var + '_quark_reweighting_weights' for reweighting_var in reweighting_vars]
 
 label_var_map = {
@@ -161,7 +161,7 @@ def digitize_pd(pd_input, reweight='event_weight', is_MC = True):
     return HistMap_unumpy
 
 def attach_reweight_factor(pd_input, reweight_factor):
-    reweighting_vars = ['jet_nTracks', 'jet_trackBDT', 'GBDT_newScore'] 
+    reweighting_vars = ['jet_nTracks', 'GBDT_newScore'] 
     for reweighting_var in reweighting_vars:
         pd_input[f'{reweighting_var}_quark_reweighting_weights'] = pd_input['event_weight'].copy()
         pd_input[f'{reweighting_var}_gluon_reweighting_weights'] = pd_input['event_weight'].copy()

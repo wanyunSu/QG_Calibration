@@ -12,9 +12,9 @@ from .utils import check_inputpath, check_outputpath, logging_setup
 from .utils import trk_eff_uncertainties, JESJER_uncertainties, pdf_weight_uncertainties, scale_variation_uncertainties
 
 luminosity_periods = {
-    "A" : 36000,
-    "D" : 44500,
-    "E" : 58500
+    "A" : 36232,#3244.54 + 33402.2
+    "D" : 44307,#44630.6
+    "E" : 59461 #58791.6 #https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LuminosityForPhysics
 }
 
 MC_identifier_config = {
@@ -235,8 +235,9 @@ def root2pkl(root_file_path, is_MC=True, output_path=None,
         assert period in ["1516", "17", "18"]
         event_weight = ak.ones_like(sample_ak['event'], dtype=np.float32) # For data, event weight is always 1 
 
-        if period == "18":
-           event_weight = event_weight * 58.45/39.91
+        #if period == "18":
+       #    event_weight = event_weight * 58.45/39.91
+           
 
     sample = ak.with_field(base = sample_ak, what = event_weight, where = "event_weight")
 

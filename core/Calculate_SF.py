@@ -13,6 +13,7 @@ from uncertainties import ufloat, unumpy
 import hist 
 from hist import Hist
 import logging
+from sklearn.metrics import roc_curve, auc
 import atlas_mpl_style as ampl
 import mplhep as hep
 hep.style.use("ATLAS")
@@ -360,6 +361,7 @@ def Plot_Pt_Spectrum(HistMap_MC_unumpy, HistMap_Data_unumpy, output_path, reweig
 
     for i_leading, l_leadingtype in enumerate(label_leadingtype): 
         cumsum_MC_jets = cal_sum_unumpy(Read_HistMap_MC=Read_HistMap_MC[l_leadingtype])
+        #cumsum_MC_jets = Normalize_unumpy(cal_sum_unumpy(Read_HistMap_MC=Read_HistMap_MC[l_leadingtype]))
         fig, (ax, ax1) = plt.subplots(nrows=2, sharex=True, gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.1})
         custom_bins = np.linspace(0, 2000, 61)
         pt_bin_centers = 1/2 * (custom_bins[:-1] + custom_bins[1:])
@@ -368,11 +370,15 @@ def Plot_Pt_Spectrum(HistMap_MC_unumpy, HistMap_Data_unumpy, output_path, reweig
         #                     label = MC_jet_types[i], ax=ax,histtype='fill',stack=True)
         #                     #label = MC_jet_types[i]+ f", num:{np.sum(unumpy.nominal_values(Read_HistMap_MC[l_leadingtype][MC_jet_types[i]])):.2e}", step='mid')
 
-        Read_HistMap_Data[l_leadingtype]['Data']= Read_HistMap_Data[l_leadingtype]['Data']* (140.0 / 139.0)
+        Read_HistMap_Data[l_leadingtype]['Data']= Read_HistMap_Data[l_leadingtype]['Data']
 
+        nom_data=Normalize_unumpy(Read_HistMap_Data[l_leadingtype]['Data'])
+        #print("nom_data: ",nom_data)
         total_jet_MC = unumpy.nominal_values(cumsum_MC_jets[-1])
-        total_jet_Data = unumpy.nominal_values(Read_HistMap_Data[l_leadingtype]['Data']) 
+#        total_jet_Data = unumpy.nominal_values(nom_data)
         total_jet_error_MC = unumpy.std_devs(cumsum_MC_jets[-1])
+#        total_jet_error_Data = unumpy.std_devs(nom_data)
+        total_jet_Data = unumpy.nominal_values(Read_HistMap_Data[l_leadingtype]['Data'])
         total_jet_error_Data = unumpy.std_devs(Read_HistMap_Data[l_leadingtype]['Data'])
 
         # # ax.stairs(values=cumsum_MC_jets[-1], edges=custom_bins, label = "Total MC"+ f"num. {np.sum(cumsum_MC_jets[-1]):.2f}" )
@@ -385,6 +391,7 @@ def Plot_Pt_Spectrum(HistMap_MC_unumpy, HistMap_Data_unumpy, output_path, reweig
         hep.atlas.label(label='Internal',data=True,ax=ax,lumi=140)
         ax.set_yscale('log')
         ax.set_xlim(500, 2000)
+        #ax.set_ylim(1e-7,10)
         ax.set_ylim(1e3,1e8)
 #        ax.set_title(f'MC16{period} {l_leadingtype}' +  ' Jet $p_{T}$ Spectrum Component')
         #ax.set_xlabel('Jet $p_{\mathrm{T}}$ [GeV]')
@@ -408,8 +415,9 @@ def Plot_Pt_Spectrum(HistMap_MC_unumpy, HistMap_Data_unumpy, output_path, reweig
 
 def _Plot_ROC(p_Quark_unumpy, p_Gluon_unumpy, l_ptrange, etaregion):
     label_var = ['jet_nTracks', 'jet_trackWidth', 'jet_trackC1', 'GBDT_newScore']
-    lines=['-',':','-.','--']
+    lines=['o','v','3','d','p','x','*','s']
     fig, ax0 = plt.subplots()
+    aucc={}
     for i_var, l_var in enumerate(label_var):
         p_Quark = unumpy.nominal_values(p_Quark_unumpy[l_var])
         p_Gluon = unumpy.nominal_values(p_Gluon_unumpy[l_var])
@@ -418,15 +426,22 @@ def _Plot_ROC(p_Quark_unumpy, p_Gluon_unumpy, l_ptrange, etaregion):
         n_cut = len(var_bins)-1
         quark_effs = np.zeros(n_cut)
         gluon_rejs = np.zeros(n_cut)
+        TPR = np.zeros(n_cut)
+        FPR = np.zeros(n_cut)
 
         for cut_idx in range(n_cut):
             TP = np.sum(p_Quark[:cut_idx])
             TN = np.sum(p_Gluon[cut_idx:])
+            FP = np.sum(p_Gluon[:cut_idx])
+            FN = np.sum(p_Quark[cut_idx:])
+            TPR[cut_idx] = TP/(TP+FN) 
+            FPR[cut_idx] = FP/(FP+TN)
             quark_effs[cut_idx] = TP ## After normalization 
             gluon_rejs[cut_idx] = TN
-        # auc = 
-        ax0.plot(quark_effs, gluon_rejs, label = f"{Map_var_title[l_var]}")
-        
+
+        aucc[l_var]=auc(FPR,TPR) 
+        ax0.plot(quark_effs, gluon_rejs, label = f"{Map_var_title[l_var]}, AUC = %0.3f"%(aucc[l_var]),marker=lines[i_var],markersize=5)
+
         #hep.histplot(quark_effs,gluon_rejs,ax=ax0,label = f"{Map_var_title[l_var]}",histtype='step',linstyle=lines[i_var])
         
 
@@ -441,7 +456,6 @@ def _Plot_ROC(p_Quark_unumpy, p_Gluon_unumpy, l_ptrange, etaregion):
     ax0.legend()
     #ax0.grid()
     hep.atlas.label(label='Internal',ax=ax0,lumi=140)
-    
 
     return fig
 
@@ -475,6 +489,8 @@ def Plot_ROC(Extraction_Results, output_path, period, reweighting_var, reweighti
             fig_name = output_path_new / f"ROC_{l_ptrange}_{k}_{reweighting_option}.pdf"
             fig.savefig(fig_name)
             plt.close()
+            #print(f"pt: ,{l_ptrange}")
+            
 
 def Plot_Fraction(Extraction_Results, output_path, period, reweighting_var, reweighting_option):
     fraction_pt_slices = []

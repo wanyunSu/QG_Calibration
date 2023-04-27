@@ -8,7 +8,9 @@ from concurrent.futures import ProcessPoolExecutor
 import functools 
 
 #input_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/trained_lightGBM_new_hrzhao/matrix_element/powhegpythia'
+#input_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/note_plots/nominal'
 input_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/trained_lightGBM_new_hrzhao/nominal'
+#nominal_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/note_plots/nominal'
 nominal_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/trained_lightGBM_new_hrzhao/nominal/'
 
 def make_plots(MC_merged_hist, Data_merged_hist, output_path, nominal_path=None, 
@@ -150,6 +152,11 @@ if __name__ == "__main__":
             output_path = output_path / systs_type / systs_subtype
 
 
+ #   MC_merged_hist1 = joblib.load(input_path / "pythiaE_part1_pred_hists.pkl")
+ #   MC_merged_hist2 = joblib.load(input_path / "pythiaE_part2_pred_hists.pkl")
+ #   MC_merged_hist = MC_merged_hist1
+ #   MC_merged_hist.update(MC_merged_hist2)
+ #   Data_merged_hist = joblib.load(input_path / "data18_pred_hists.pkl")
     MC_merged_hist = joblib.load(input_path / "MC_merged_hist.pkl")
     Data_merged_hist = joblib.load(input_path / "Data_merged_hist.pkl")
     
