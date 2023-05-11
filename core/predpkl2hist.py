@@ -26,10 +26,10 @@ def predpkl2hist(input, reweight='event_weight', is_MC = True, output_path=None,
             output_path = check_outputpath(output_path)
             output_name = f"digitized_{input_path.stem}.pkl"
 
-    if is_MC:
-        sample_pd = sample_pd[(sample_pd["jet_nTracks"] > 1) & (sample_pd["target"] != '-')] 
-    else:
-        sample_pd = sample_pd[(sample_pd["jet_nTracks"] > 1)]
+    # if is_MC:
+    #     sample_pd = sample_pd[(sample_pd["jet_nTracks"] > 1) & (sample_pd["target"] != '-')] 
+    # else:
+    #     sample_pd = sample_pd[(sample_pd["jet_nTracks"] > 1)]
     
     histogram_unumpy = digitize_pd(sample_pd, reweight=reweight, is_MC= is_MC)
     

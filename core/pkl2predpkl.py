@@ -28,7 +28,9 @@ def pkl2predpkl(input, gbdt_path, training_vars=['jet_pt', 'jet_nTracks', 'jet_t
 
     gbdt = joblib.load(gbdt_path)
 
+    #sample_pd['GBDT_newScore'] = gbdt.predict_proba(sample_pd[training_vars])[:,1]
     sample_pd['GBDT_newScore'] = gbdt.predict(sample_pd[training_vars], raw_score = True)
+
     if if_save:
         joblib.dump(sample_pd, output_path / output_name)
     return sample_pd

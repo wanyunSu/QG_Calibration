@@ -8,15 +8,15 @@ from make_plot_new import make_plots
 from concurrent.futures import ProcessPoolExecutor
 import functools 
 
-#pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_alter/sherpa'
-#pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Dec11/herwigangle'
-pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Dec11/pythia/'
-data_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_New/data/'
+pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Apr30/pythia/'
+#pythia_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Dec11/pythia/'
+data_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_Apr30/data/'
+#data_path = '/global/cfs/projectdirs/atlas/hrzhao/qgcal/Samples_New/data/'
 pythia_path = Path(pythia_path)
 data_path = Path(data_path)
 
 # default gbdt path 
-# gbdt_path = '/global/cfs/projectdirs/atlas/hrzhao/HEP_Repo/QG_Calibration/BDT_EB4/LightGBM/optuna_tuning/small_dataset/lightgbm_gbdt.pkl'
+#gbdt_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/LightGBM/4vars/full_dataset/lightgbm_gbdt.pkl'
 gbdt_path = '/global/cfs/projectdirs/atlas/hrzhao/HEP_Repo/QG_Calibration/NewWorkflow/LightGBM/4vars/full_dataset/lightgbm_gbdt.pkl'
 gbdt_path = Path(gbdt_path)
 

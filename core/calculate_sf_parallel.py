@@ -39,7 +39,6 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
     #### Draw pt spectrum
     Plot_Pt_Spectrum(HistMap_MC_unumpy, HistMap_Data_unumpy, output_path, reweighting_var, weight_option)
 
-
     Extraction_Results = Extract(HistMap_MC_unumpy, HistMap_Data_unumpy)
     extraction_output_path = check_outputpath(output_path / period / "Extraction_Results") 
     joblib.dump(Extraction_Results, extraction_output_path /  f"{reweighting_var}_Extraction_Results.pkl")

@@ -12,9 +12,9 @@ from .utils import check_inputpath, check_outputpath, logging_setup
 from .utils import trk_eff_uncertainties, JESJER_uncertainties, pdf_weight_uncertainties, scale_variation_uncertainties
 
 luminosity_periods = {
-    "A" : 36232,#3244.54 + 33402.2
-    "D" : 44307,#44630.6
-    "E" : 59461 #58791.6 #https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LuminosityForPhysics
+    "A" : 36000,#3244.54 + 33402.2
+    "D" : 44630,#44630.6
+    "E" : 58791 #58791.6 #https://twiki.cern.ch/twiki/bin/viewauth/Atlas/LuminosityForPhysics
 }
 
 MC_identifier_config = {
@@ -112,7 +112,7 @@ def read_SumofWeights_Period(sample_folder_path:Path, MC_identifier:str, period:
     
     return period_JZ_sum
 
-def apply_cut(sample):
+def apply_cut(sample,is_MC=False):
     # event trigger selection 
     event_trigger_idx = sample["jet_fire"] == 1
     sample = sample[event_trigger_idx]
@@ -132,6 +132,13 @@ def apply_cut(sample):
     sample = sample[np.abs(sample["jet_eta"][:,1]) < 2.1]
 
     sample = sample[np.abs(sample["event_weight"]) < 100]
+    sample = sample[sample["jet_cleaning"][:,0] == 2]
+    sample = sample[sample["jet_cleaning"][:,1] == 2]
+    sample = sample[(sample["jet_nTracks"][:,0] > 1)]
+    sample = sample[(sample["jet_nTracks"][:,1] > 1)]
+    if is_MC:
+        sample = sample[((sample["jet_PartonTruthLabelID"][:,0] > 0) & (sample['jet_PartonTruthLabelID'][:,0] < 10)) or (sample['jet_PartonTruthLabelID'][:,0] == 21)]
+        sample = sample[((sample["jet_PartonTruthLabelID"][:,1] > 0) & (sample['jet_PartonTruthLabelID'][:,1] < 10)) or (sample['jet_PartonTruthLabelID'][:,1] == 21)]
 
     return sample 
 
@@ -174,7 +181,8 @@ def root2pkl(root_file_path, is_MC=True, output_path=None,
             raise Exception(f"{systs_subtype} is not avaiale in valid JESJER types.")
         ttree_name = systs_subtype
 
-    branch_names = ["run", "event", "pu_weight", "jet_fire", "jet_pt", "jet_eta", "jet_nTracks", "jet_trackWidth", "jet_trackC1", "jet_trackBDT", "jet_PartonTruthLabelID"]
+    #branch_names = ["run", "event", "pu_weight", "jet_fire", "jet_pt", "jet_eta", "jet_nTracks", "jet_trackWidth", "jet_trackC1", "jet_trackBDT", "jet_PartonTruthLabelID"]
+    branch_names = ["run", "event", "pu_weight", "jet_fire", "jet_pt", "jet_eta", "jet_nTracks", "jet_trackWidth", "jet_trackC1", "jet_trackBDT", "jet_PartonTruthLabelID","jet_cleaning"]
     if is_MC: # Only do the systematics for MC
         if do_systs and systs_type == 'trk_eff':
             if not systs_subtype in trk_eff_uncertainties:
@@ -221,7 +229,7 @@ def root2pkl(root_file_path, is_MC=True, output_path=None,
         eff = MC_identifier_config[MC_identifier]["eff"]
 
         JZ_slice_number = DSID_JZ[sample_ak.run[0]] # JZ slice for each event
-        event_weight = luminosity_periods[period] * sample_ak["pu_weight"] * xsec[JZ_slice_number] * eff[JZ_slice_number] / sum_of_weights[JZ_slice_number] # Changed to key, lookup the var by JZ_slice_number 
+        event_weight = luminosity_periods[period] * sample_ak["pu_weight"] * xsec[JZ_slice_number] * eff[JZ_slice_number]*0.778/ sum_of_weights[JZ_slice_number] # Changed to key, lookup the var by JZ_slice_number 
         # pu_weight is already multiplied by mcEventWeight in MonoJetx.cxx 
         if do_systs and systs_type == 'pdf_weight':
             event_weight = event_weight * sample_ak["pdf_weight"][:, int(systs_subtype)]
@@ -236,7 +244,7 @@ def root2pkl(root_file_path, is_MC=True, output_path=None,
         event_weight = ak.ones_like(sample_ak['event'], dtype=np.float32) # For data, event weight is always 1 
 
         #if period == "18":
-       #    event_weight = event_weight * 58.45/39.91
+        #   event_weight = event_weight * 59.45/39.91
            
 
     sample = ak.with_field(base = sample_ak, what = event_weight, where = "event_weight")

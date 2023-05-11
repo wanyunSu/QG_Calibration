@@ -14,7 +14,7 @@ import re
 
 label_pt_bin = [500, 600, 800, 1000, 1200, 1500, 2000]
 # label_var = ["pt", "eta", "ntrk", "width", "c1", "bdt", "newBDT"]
-label_var = ['jet_pt', 'jet_eta', 'jet_nTracks', 'jet_trackWidth', 'GBDT_newScore']
+label_var = ['jet_pt', 'jet_eta', 'jet_nTracks', 'jet_trackWidth', 'jet_trackC1','GBDT_newScore']
 label_leadingtype = ["LeadingJet", "SubLeadingJet"]
 label_etaregion = ["Forward", "Central"]
 label_jettype = ["Gluon", "Quark", "B_Quark", "C_Quark"]
@@ -59,6 +59,7 @@ HistBins = {
     'jet_trackC1' : np.linspace(0, 0.4, 61),
     'jet_trackBDT' : np.linspace(-1.0, 1.0, 101),
     'GBDT_newScore' : np.linspace(-5.0, 5.0, 101),
+    #'GBDT_newScore' : np.linspace(0, 1.0, 51),
 }
 
 
