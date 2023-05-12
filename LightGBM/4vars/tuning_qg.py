@@ -19,7 +19,8 @@ from LightGBM_BDT_train import *
 use_full_dataset = 1
 
 if use_full_dataset:
-    sample_path = '/global/cfs/projectdirs/atlas/hrzhao/HEP_Repo/QG_Calibration/NewWorkflow/LightGBM/training_sample.pkl'
+    sample_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/LightGBM/training_sample_qg.pkl'
+    #sample_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/LightGBM/training_sample.pkl'
     output_path = './full_dataset'
     n_trails = 1
     
@@ -140,7 +141,8 @@ def objective(trial):
             callbacks=[pruning_callback])
 
     # choose the highest auc score with event weight  
-    y_val_decisions = gbm.predict_proba(X_val[training_vars])[:,1]
+    y_val_decisions = gbm.predict(X_val[training_vars], raw_score = True)
+    #y_val_decisions = gbm.predict_proba(X_val[training_vars])[:,1]
     fpr, tpr, thresholds = roc_curve(y_val, y_val_decisions, sample_weight = X_val['event_weight'])
     roc_auc = auc(fpr, tpr)
 
