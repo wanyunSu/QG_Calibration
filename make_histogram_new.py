@@ -16,8 +16,8 @@ pythia_path = Path(pythia_path)
 data_path = Path(data_path)
 
 # default gbdt path 
-#gbdt_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/LightGBM/4vars/full_dataset/lightgbm_gbdt.pkl'
-gbdt_path = '/global/cfs/projectdirs/atlas/hrzhao/HEP_Repo/QG_Calibration/NewWorkflow/LightGBM/4vars/full_dataset/lightgbm_gbdt.pkl'
+gbdt_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/LightGBM/4vars/full_dataset/lightgbm_gbdt_20.pkl'
+#gbdt_path = '/global/cfs/projectdirs/atlas/hrzhao/HEP_Repo/QG_Calibration/NewWorkflow/LightGBM/4vars/full_dataset/lightgbm_gbdt.pkl'
 gbdt_path = Path(gbdt_path)
 
 n_workers = 8 

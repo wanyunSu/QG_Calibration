@@ -525,7 +525,7 @@ def Plot_Fraction(Extraction_Results, output_path, period, reweighting_var, rewe
 
 
 
-def Plot_ForwardCentral_MCvsData(pt, var, output_path, period, reweighting_var, reweighting_option, 
+def Plot_ForwardCentral_MCvsData(i_pt,pt, var, output_path, period, reweighting_var, reweighting_option, 
                                  Forward_MC, Central_MC, Forward_Data, Central_Data, if_norm, show_yields=True):
 
     bin_edges = HistBins[var]
@@ -586,7 +586,7 @@ def Plot_ForwardCentral_MCvsData(pt, var, output_path, period, reweighting_var, 
     fig.savefig(fig_name)
     plt.close()
 
-def Plot_Parton_ForwardvsCentral(pt, var, output_path, period, reweighting_var, reweighting_option, p_Forward_Quark, p_Central_Quark, p_Forward_Gluon, p_Central_Gluon ):
+def Plot_Parton_ForwardvsCentral(i_pt,pt, var, output_path, period, reweighting_var, reweighting_option, p_Forward_Quark, p_Central_Quark, p_Forward_Gluon, p_Central_Gluon ):
     bin_edges = HistBins[var]
     bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
    
@@ -636,7 +636,7 @@ def Plot_Parton_ForwardvsCentral(pt, var, output_path, period, reweighting_var, 
     plt.close()
 
 
-def Plot_Extracted_unumpy(pt, var, output_path, period, reweighting_var, reweighting_factor, p_Quark, extract_p_Quark, p_Gluon, extract_p_Gluon, extract_p_Quark_Data, extract_p_Gluon_Data,
+def Plot_Extracted_unumpy(i_pt,pt, var, output_path, period, reweighting_var, reweighting_factor, p_Quark, extract_p_Quark, p_Gluon, extract_p_Gluon, extract_p_Quark_Data, extract_p_Gluon_Data,
                           show_yields=False, n_Forward_MC=None, n_Central_MC=None, variances_Forward_MC = None, variances_Central_MC = None,
                           n_Forward_Data=None, n_Central_Data=None, variances_Forward_Data=None, variances_Central_Data=None):
     bin_edges = HistBins[var]
@@ -691,7 +691,7 @@ def Plot_Extracted_unumpy(pt, var, output_path, period, reweighting_var, reweigh
         fig.savefig( output_path_new / f"DataExtraction_{pt}_{jet_type}_{var}.pdf")
         plt.close()
 
-def Plot_Closure_unumpy(pt, var, output_path, period, reweighting_var, reweighting_factor, p_Quark, extract_p_Quark, p_Gluon, extract_p_Gluon, extract_p_Quark_Data, extract_p_Gluon_Data,
+def Plot_Closure_unumpy(i_pt,pt, var, output_path, period, reweighting_var, reweighting_factor, p_Quark, extract_p_Quark, p_Gluon, extract_p_Gluon, extract_p_Quark_Data, extract_p_Gluon_Data,
                           show_yields=False, n_Forward_MC=None, n_Central_MC=None, variances_Forward_MC = None, variances_Central_MC = None,
                           n_Forward_Data=None, n_Central_Data=None, variances_Forward_Data=None, variances_Central_Data=None):
     bin_edges = HistBins[var]
@@ -707,8 +707,10 @@ def Plot_Closure_unumpy(pt, var, output_path, period, reweighting_var, reweighti
     for i, jet_type in enumerate(jet_types):  # i is the idx of jet type
         fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True, gridspec_kw={'height_ratios': [3, 1], 'hspace': 0})
 
-        ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][0], yerr = plot_data_bin_error[i][0], drawstyle = 'steps-mid', label = "Truth MC",color="blue")
-        ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][1], yerr = plot_data_bin_error[i][1], drawstyle = 'steps-mid', label = "Extracted MC",color="red")
+        hep.histplot(plot_data_bin_content[i][1],bins=bin_edges,label=f'Extracted Pythia',ax=ax0,histtype='step',linestyle='-',color='blue')
+        hep.histplot(plot_data_bin_content[i][0],bins=bin_edges,label=f'Truth Pythia',ax=ax0,histtype='step',linestyle=':',color='red')
+        #ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][1], yerr = plot_data_bin_error[i][1], drawstyle = 'steps-mid', label = "Extracted MC",color="red")
+        #ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][0], yerr = plot_data_bin_error[i][0], drawstyle = 'steps-mid', label = "Truth MC",color="blue")
         
         ax0.set_xlim(bin_edges[0], bin_edges[-1])
         ax0.legend()
@@ -716,6 +718,7 @@ def Plot_Closure_unumpy(pt, var, output_path, period, reweighting_var, reweighti
         y_max = np.max(plot_data_bin_content)
         ax0.set_ylim(-0.01, y_max * 1.3)
         ax0.set_ylabel("Normalized")
+        ax0.text(bin_edges[2],y_max*0.9,f'{pt} - {label_ptrange[i_pt+1]} GeV {jet_type} jets',fontsize=15)
 #        ax0.set_title(f"{pt} GeV {jet_type}: MCClosure " + rf"{Map_var_title[var]}"  + f" distribution, {reweighting_factor}")
         hep.atlas.label(label='Internal',ax=ax0,lumi=140)
         if show_yields:
@@ -726,12 +729,12 @@ def Plot_Closure_unumpy(pt, var, output_path, period, reweighting_var, reweighti
                 f"Data forward variances:{variances_Forward_Data:.2e}, central variances:{variances_Central_Data:.2e}",
             ha='left', va='bottom', transform=ax0.transAxes)
 
-        ratio_truthMC_over_extractedMC = safe_array_divide_unumpy(plot_data[i][0], plot_data[i][1])
-        ax1.errorbar(x = bin_centers, y = unumpy.nominal_values(ratio_truthMC_over_extractedMC), yerr = unumpy.std_devs(ratio_truthMC_over_extractedMC), drawstyle = 'steps-mid',color="red")
-
+        ratio_truthMC_over_extractedMC = safe_array_divide_unumpy(plot_data[i][1], plot_data[i][0])
+        #ax1.errorbar(x = bin_centers, y = unumpy.nominal_values(ratio_truthMC_over_extractedMC), yerr = unumpy.std_devs(ratio_truthMC_over_extractedMC), drawstyle = 'steps-mid',color="red")
+        hep.histplot(unumpy.nominal_values(ratio_truthMC_over_extractedMC),bins=bin_edges,ax=ax1,histtype='errorbar',marker=".",color='blue',yerr=unumpy.std_devs(ratio_truthMC_over_extractedMC),xerr=True,markersize=4)
         #ax1.legend()
         ax1.set_ylim(0.7,1.3)
-        ax1.set_ylabel("Truth/Extracted")
+        ax1.set_ylabel("Extracted/Truth")
         ax1.set_xlim(bin_edges[0], bin_edges[-1])
         ampl.plot.set_xlabel(f"{Map_var_title[var]}")
         ax1.hlines(y = 1, xmin = bin_edges[0], xmax = bin_edges[-1], color = 'black', linestyle = '--')

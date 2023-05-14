@@ -52,10 +52,10 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
 
     # Doing the extraction plots...
     for var in label_var:
-        for l_pt in label_ptrange[:-1]:
+        for i_pt, l_pt in enumerate(label_ptrange[:-1]):
             Extraction_var_pt =  Extraction_Results[var][l_pt]
             #### Draw Forward vs Central plots 
-            Plot_ForwardCentral_MCvsData(pt = l_pt, var= var, output_path= output_path, 
+            Plot_ForwardCentral_MCvsData(i_pt=i_pt,pt = l_pt, var= var, output_path= output_path, 
                                 period= period, reweighting_var = reweighting_var,
                                 reweighting_option= weight_option,
                                 Forward_MC= Extraction_var_pt['Forward_MC'], 
@@ -64,7 +64,7 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
                                 Central_Data= Extraction_var_pt['Central_Data'],
                                 if_norm=False, show_yields=False)
 
-            Plot_ForwardCentral_MCvsData(pt = l_pt, var = var, output_path = output_path, 
+            Plot_ForwardCentral_MCvsData(i_pt=i_pt,pt = l_pt, var = var, output_path = output_path, 
                                 period = period, reweighting_var = reweighting_var,
                                 reweighting_option= weight_option,
                                 Forward_MC= Normalize_unumpy(Extraction_var_pt['Forward_MC']), 
@@ -73,7 +73,7 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
                                 Central_Data= Normalize_unumpy(Extraction_var_pt['Central_Data']),
                                 if_norm=True, show_yields=False)
             
-            Plot_Parton_ForwardvsCentral(pt = l_pt, var = var, output_path = output_path,
+            Plot_Parton_ForwardvsCentral(i_pt=i_pt,pt = l_pt, var = var, output_path = output_path,
                                 period = period, reweighting_var = reweighting_var,
                                 reweighting_option = weight_option, 
                                 p_Forward_Quark = Normalize_unumpy(Extraction_var_pt['Forward_Quark']),  
@@ -83,7 +83,7 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
                                 )
 
             #### Draw extraction plots 
-            Plot_Extracted_unumpy(pt = l_pt, var= var, output_path= output_path, 
+            Plot_Extracted_unumpy(i_pt=i_pt,pt = l_pt, var= var, output_path= output_path, 
                                     period= period, reweighting_var = reweighting_var,
                                     reweighting_factor= weight_option,
                                     p_Quark=Extraction_var_pt['p_Quark'], p_Gluon=Extraction_var_pt['p_Gluon'],
@@ -99,7 +99,7 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
                                     variances_Forward_Data=np.sum(unumpy.std_devs(Extraction_var_pt['Forward_Data'])**2),
                                     variances_Central_Data=np.sum(unumpy.std_devs(Extraction_var_pt['Central_Data'])**2)
                                     )
-            Plot_Closure_unumpy(pt = l_pt, var= var, output_path= output_path, 
+            Plot_Closure_unumpy(i_pt=i_pt,pt = l_pt, var= var, output_path= output_path, 
                                     period= period, reweighting_var = reweighting_var,
                                     reweighting_factor= weight_option,
                                     p_Quark=Extraction_var_pt['p_Quark'], p_Gluon=Extraction_var_pt['p_Gluon'],

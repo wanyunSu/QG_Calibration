@@ -58,7 +58,8 @@ HistBins = {
     'jet_trackWidth' : np.linspace(0, 0.4, 61),
     'jet_trackC1' : np.linspace(0, 0.4, 61),
     'jet_trackBDT' : np.linspace(-1.0, 1.0, 101),
-    'GBDT_newScore' : np.linspace(-5.0, 5.0, 101),
+    'GBDT_newScore' : np.linspace(-2.0, 2.0, 51),
+    #'GBDT_newScore' : np.linspace(-5.0, 5.0, 101),
     #'GBDT_newScore' : np.linspace(0, 1.0, 51),
 }
 
