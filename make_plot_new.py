@@ -8,8 +8,8 @@ from concurrent.futures import ProcessPoolExecutor
 import functools 
 
 #input_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/trained_lightGBM_new_hrzhao/matrix_element/powhegpythia'
-input_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/note_plots_qg/nominal'
-nominal_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/note_plots_qg/nominal'
+input_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/note_plots/nominal'
+nominal_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/note_plots/nominal'
 #input_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/trained_lightGBM_new_hrzhao/nominal'
 #nominal_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/note_plots/nominal'
 #nominal_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/trained_lightGBM_new_hrzhao/nominal/'

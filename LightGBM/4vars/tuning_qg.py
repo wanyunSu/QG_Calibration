@@ -19,10 +19,10 @@ from LightGBM_BDT_train import *
 use_full_dataset = 1
 
 if use_full_dataset:
-    sample_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/LightGBM/training_sample_qg.pkl'
-    #sample_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/LightGBM/training_sample.pkl'
+    sample_path = '/global/cfs/projectdirs/atlas/wys/QG_Calibration/LightGBM/training_sample_qg_500.pkl'
+#    sample_path = '/global/cfs/projectdirs/atlas/wys/HEP_Repo/QG_Calibration/NewWorkflow/LightGBM/training_sample.pkl'
     output_path = './full_dataset'
-    n_trails = 20
+    n_trails = 40
     
 else:
     sample_path = '/global/cfs/projectdirs/atlas/hrzhao/HEP_Repo/QG_Calibration/BDT_EB4/samples/sample_testweight_123'
@@ -38,7 +38,7 @@ if not output_folder.exists():
     output_folder.mkdir(parents=True, exist_ok=True)
 
 study_output = output_folder / 'study.pkl'
-gbdt_filename = output_folder / 'lightgbm_gbdt_20.pkl'
+gbdt_filename = output_folder / 'lightgbm_gbdt_qg_500.pkl'
 eval_result_filename = output_folder / 'eval_result.pkl'
 
 training_vars = ['jet_pt', 'jet_nTracks', 'jet_trackWidth', 'jet_trackC1']
