@@ -48,21 +48,21 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
                   reweighting_var=reweighting_var, reweighting_option=weight_option)
                   
     #### Draw ROC plot 
-    Plot_ROC(Extraction_Results, output_path, period, reweighting_var, reweighting_option=weight_option)
+    #Plot_ROC(Extraction_Results, output_path, period, reweighting_var, reweighting_option=weight_option)
 
     # Doing the extraction plots...
     for var in label_var:
         for i_pt, l_pt in enumerate(label_ptrange[:-1]):
             Extraction_var_pt =  Extraction_Results[var][l_pt]
             #### Draw Forward vs Central plots 
-            Plot_ForwardCentral_MCvsData(i_pt=i_pt,pt = l_pt, var= var, output_path= output_path, 
-                                period= period, reweighting_var = reweighting_var,
-                                reweighting_option= weight_option,
-                                Forward_MC= Extraction_var_pt['Forward_MC'], 
-                                Central_MC= Extraction_var_pt['Central_MC'],
-                                Forward_Data= Extraction_var_pt['Forward_Data'], 
-                                Central_Data= Extraction_var_pt['Central_Data'],
-                                if_norm=False, show_yields=False)
+            # Plot_ForwardCentral_MCvsData(i_pt=i_pt,pt = l_pt, var= var, output_path= output_path, 
+            #                     period= period, reweighting_var = reweighting_var,
+            #                     reweighting_option= weight_option,
+            #                     Forward_MC= Extraction_var_pt['Forward_MC'], 
+            #                     Central_MC= Extraction_var_pt['Central_MC'],
+            #                     Forward_Data= Extraction_var_pt['Forward_Data'], 
+            #                     Central_Data= Extraction_var_pt['Central_Data'],
+            #                     if_norm=False, show_yields=False)
 
             Plot_ForwardCentral_MCvsData(i_pt=i_pt,pt = l_pt, var = var, output_path = output_path, 
                                 period = period, reweighting_var = reweighting_var,
@@ -177,8 +177,8 @@ def calculate_sf_parallel(plot_tuple:tuple, output_path, is_nominal=False, nomin
             SFs[var][WP]["Quark"] = SF_quark
             SFs[var][WP]["Gluon"] = SF_gluon
 
-    #WriteSFtoPickle(Hist_SFs = SFs, output_path=output_path, period=period, 
-    #                reweighting_var = reweighting_var, reweighting_factor= weight_option)
+    WriteSFtoPickle(Hist_SFs = SFs, output_path=output_path, period=period, 
+                    reweighting_var = reweighting_var, reweighting_factor= weight_option)
 
     if is_nominal:
         WriteWPcuttoPickle(WP_cuts= WP_cut, output_path=output_path, period=period, 

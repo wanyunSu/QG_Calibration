@@ -229,7 +229,7 @@ def root2pkl(root_file_path, is_MC=True, output_path=None,
         eff = MC_identifier_config[MC_identifier]["eff"]
 
         JZ_slice_number = DSID_JZ[sample_ak.run[0]] # JZ slice for each event
-        event_weight = luminosity_periods[period] * sample_ak["pu_weight"] * xsec[JZ_slice_number] * eff[JZ_slice_number]*0.78/ sum_of_weights[JZ_slice_number] # Changed to key, lookup the var by JZ_slice_number 
+        event_weight = luminosity_periods[period] * sample_ak["pu_weight"] * xsec[JZ_slice_number] * eff[JZ_slice_number]*0.75/ sum_of_weights[JZ_slice_number] # Changed to key, lookup the var by JZ_slice_number 
         # pu_weight is already multiplied by mcEventWeight in MonoJetx.cxx 
         if do_systs and systs_type == 'pdf_weight':
             event_weight = event_weight * sample_ak["pdf_weight"][:, int(systs_subtype)]

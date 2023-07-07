@@ -75,6 +75,16 @@ def Calcu_Frac(Forward_Quark, Central_Quark, Forward, Central):
 
     f = np.array([[frac_Forward_Quark,  frac_Forward_Gluon], [frac_Central_Quark, frac_Central_Gluon]])
 
+    frac_Forward_Quark_err1=np.sqrt(frac_Forward_Quark)
+    frac_Central_Quark_err1=np.sqrt(frac_Central_Quark)
+    print("nom. frac_fq: ",frac_Forward_Quark_err1,"nom. frac_cq: ",frac_Central_Quark_err1) 
+
+
+    frac_Forward_Quark_err = np.sqrt((frac_Forward_Quark*frac_Forward_Gluon) /np.sum(Forward)) 
+    frac_Central_Quark_err = np.sqrt((frac_Central_Quark*frac_Central_Gluon) /np.sum(Central)) 
+    print("frac_fq: ",frac_Forward_Quark_err,"frac_cq: ",frac_Central_Quark_err)
+
+
     return f, np.linalg.inv(f)
 
 def Calcu_Frac_unumpy(Forward_Quark, Central_Quark, Forward, Central):
@@ -88,7 +98,9 @@ def Calcu_Frac_unumpy(Forward_Quark, Central_Quark, Forward, Central):
     frac_Forward_Gluon = 1 - frac_Forward_Quark
     frac_Central_Gluon = 1 - frac_Central_Quark
 
+  
     f = np.array([[frac_Forward_Quark,  frac_Forward_Gluon], [frac_Central_Quark, frac_Central_Gluon]])
+
 
     return f, unumpy.ulinalg.inv(f)
 
@@ -119,6 +131,15 @@ Map_var_title = {
     "jet_trackC1": "$C_{1}$",
     "jet_trackWidth": "$w^{trk}$",
     "GBDT_newScore": "BDT score"
+}
+Map_var_title1 = {
+    "jet_pt": "$p_{T}$",
+    "jet_nTracks": "$n_{trk}$",
+    "jet_trackBDT": "old BDT",
+    "jet_eta": "$\eta$",
+    "jet_trackC1": "$C_{1}$",
+    "jet_trackWidth": "$w^{trk}$",
+    "GBDT_newScore": "BDT"
 }
 
 def Read_Histogram_Root(file, sampletype="MC", code_version="new", reweighting_var=None, reweighting_factor="none"):
@@ -366,35 +387,43 @@ def Plot_Pt_Spectrum(HistMap_MC_unumpy, HistMap_Data_unumpy, output_path, reweig
 
         Read_HistMap_Data[l_leadingtype]['Data']= Read_HistMap_Data[l_leadingtype]['Data']
 
-        nom_data=Normalize_unumpy(Read_HistMap_Data[l_leadingtype]['Data'])
-        #print("nom_data: ",nom_data)
-        total_jet_MC = unumpy.nominal_values(cumsum_MC_jets[-1])
-#        total_jet_Data = unumpy.nominal_values(nom_data)
+        nom_data=Normalize_unumpy(Read_HistMap_Data[l_leadingtype]['Data']) 
+        nom_MC=Normalize_unumpy(cumsum_MC_jets[-1])# * 0.52 sherpa
+        #total_jet_MC = unumpy.nominal_values(nom_MC)
+        #total_jet_Data = unumpy.nominal_values(nom_data)
         total_jet_error_MC = unumpy.std_devs(cumsum_MC_jets[-1])
-#        total_jet_error_Data = unumpy.std_devs(nom_data)
+        total_jet_MC = unumpy.nominal_values(cumsum_MC_jets[-1])
+
+        #total_jet_error_MC = unumpy.std_devs(nom_MC)
+        #total_jet_error_Data = unumpy.std_devs(nom_data)
         total_jet_Data = unumpy.nominal_values(Read_HistMap_Data[l_leadingtype]['Data'])
         total_jet_error_Data = unumpy.std_devs(Read_HistMap_Data[l_leadingtype]['Data'])
 
-        # # ax.stairs(values=cumsum_MC_jets[-1], edges=custom_bins, label = "Total MC"+ f"num. {np.sum(cumsum_MC_jets[-1]):.2f}" )
-        hep.histplot(total_jet_MC, custom_bins,ax=ax,yerr = total_jet_error_MC, histtype = 'fill', label = "Total MC",color='m',alpha=0.6)
-        hep.histplot(unumpy.nominal_values(cumsum_MC_jets[:-1]),bins=custom_bins,label = MC_jet_types,ax=ax,histtype='fill',stack=True,color=["grey", "g", "r", "b"],alpha=[0.9,0.9,0.9,0.9])
-
+        #ax.stairs(values=cumsum_MC_jets[-1], edges=custom_bins, label = "Total MC"+ f"num. {np.sum(cumsum_MC_jets[-1]):.2f}" )
+        hep.histplot(total_jet_MC, custom_bins,ax=ax,yerr = total_jet_error_MC, histtype = 'step', label = "Total MC",color='cyan',linestyle='-',linewidth=3)
         hep.histplot(total_jet_Data,custom_bins, ax=ax,yerr = total_jet_error_Data, histtype = 'errorbar',xerr=True ,color= "black",marker= ".", label = "Data") 
-        #ax.errorbar(x = pt_bin_centers, y = total_jet_MC, yerr = total_jet_error_MC, drawstyle = 'steps-mid', label = "Total MC"+ f", num:{np.sum(total_jet_MC):.2e}")
-        #ax.errorbar(x = pt_bin_centers, y = total_jet_Data, yerr = total_jet_error_Data, drawstyle = 'steps-mid', color= "black", linestyle='', marker= "o", markersize=10, label = "Data" + f", num:{np.sum(total_jet_Data):.2e}")
+
+        #hep.histplot(total_jet_MC, custom_bins,ax=ax,yerr = total_jet_error_MC, histtype = 'fill', label = "Total MC",color='m',alpha=0.6)
+        for i in range(0, len(cumsum_MC_jets)-1):
+            #hep.histplot(unumpy.nominal_values(cumsum_MC_jets[i]),bins=custom_bins, 
+            #                 label = MC_jet_types[i], ax=ax,histtype='fill',stack=True)
+            ax.fill_between(pt_bin_centers, unumpy.nominal_values(cumsum_MC_jets[i]), unumpy.nominal_values(cumsum_MC_jets[i+1]),
+                            label = MC_jet_types[i], step='mid')
+            
+
         hep.atlas.label(label='Internal',data=True,ax=ax,lumi=140)
         ax.set_yscale('log')
         ax.set_xlim(500, 2000)
         #ax.set_ylim(1e-7,10)
         ax.set_ylim(1e3,1e8)
 #        ax.set_title(f'MC16{period} {l_leadingtype}' +  ' Jet $p_{T}$ Spectrum Component')
-        #ax.set_xlabel('Jet $p_{\mathrm{T}}$ [GeV]')
         ax1.set_xlabel('$p_{\mathrm{T}}$ [GeV]')
         ax.set_ylabel('Number of Events',fontsize=16)
 
         ax.legend()
 
-        ratio = safe_array_divide_unumpy(Read_HistMap_Data[l_leadingtype]['Data'], cumsum_MC_jets[-1])
+        ratio = safe_array_divide_unumpy(nom_data, nom_MC)
+        #ratio = safe_array_divide_unumpy(Read_HistMap_Data[l_leadingtype]['Data'], cumsum_MC_jets[-1])
         hep.histplot(unumpy.nominal_values(ratio),custom_bins, ax=ax1,yerr = unumpy.std_devs(ratio), color= "black", histtype = 'step')
         ax1.hlines(y = 1, xmin = 500, xmax = 2000, color = 'gray', linestyle = '--')
         ax1.set_ylabel("Data / MC",fontsize=16)
@@ -434,7 +463,7 @@ def _Plot_ROC(p_Quark_unumpy, p_Gluon_unumpy, l_ptrange, etaregion):
             gluon_rejs[cut_idx] = TN
 
         aucc[l_var]=auc(FPR,TPR) 
-        ax0.plot(quark_effs, gluon_rejs, label = f"{Map_var_title[l_var]}, AUC = %0.3f"%(aucc[l_var]),marker=lines[i_var],markersize=5)
+        ax0.plot(quark_effs, gluon_rejs, label = f"{Map_var_title1[l_var]}, AUC = %0.3f"%(aucc[l_var]),marker=lines[i_var],markersize=5)
 
         #hep.histplot(quark_effs,gluon_rejs,ax=ax0,label = f"{Map_var_title[l_var]}",histtype='step',linstyle=lines[i_var])
         
@@ -449,7 +478,7 @@ def _Plot_ROC(p_Quark_unumpy, p_Gluon_unumpy, l_ptrange, etaregion):
     ax0.set_ylim(0,1)
     ax0.legend()
     #ax0.grid()
-    hep.atlas.label(label='Internal',ax=ax0,lumi=140)
+    hep.atlas.label(label='Internal',ax=ax0)
 
     return fig
 
@@ -510,15 +539,15 @@ def Plot_Fraction(Extraction_Results, output_path, period, reweighting_var, rewe
     # ax.stairs(frac_Central_Gluon, bin_edges, label=r"$f_{Lower, Gluon}$", color="green", baseline=None, linewidth = 2)
     hep.histplot(frac_Forward_Quark, bin_edges, label=r"$f_{Forward, Quark}$",ax=ax,histtype='errorbar',marker="o",xerr=True,yerr=unumpy.std_devs(frac_Forward_Quark))
     hep.histplot(frac_Forward_Gluon, bin_edges, label=r"$f_{Forward, Gluon}$",ax=ax,histtype='errorbar',marker="^",xerr=True,yerr=unumpy.std_devs(frac_Forward_Gluon))
-    hep.histplot(frac_Central_Quark, bin_edges, label=r"$f_{Lower, Quark}$",ax=ax,histtype='errorbar',marker="*",xerr=True,yerr=unumpy.std_devs(frac_Central_Quark))
-    hep.histplot(frac_Central_Gluon, bin_edges, label=r"$f_{Lower, Gluon}$ ",ax=ax,histtype='errorbar',marker="v",xerr=True,yerr=unumpy.std_devs(frac_Central_Gluon))
+    hep.histplot(frac_Central_Quark, bin_edges, label=r"$f_{Central, Quark}$",ax=ax,histtype='errorbar',marker="*",xerr=True,yerr=unumpy.std_devs(frac_Central_Quark))
+    hep.histplot(frac_Central_Gluon, bin_edges, label=r"$f_{Central, Gluon}$ ",ax=ax,histtype='errorbar',marker="v",xerr=True,yerr=unumpy.std_devs(frac_Central_Gluon))
     ax.legend()
 
     #ax.hlines(y=0.5, xmin=bin_edges[0], xmax=bin_edges[-1], linestyles='dashed', color="black")
     ax.set_xlim(bin_edges[0], bin_edges[-1])
     ax.set_xlabel('$p_{\mathrm{T}}$ [GeV]')
     ax.set_ylabel('Fraction') 
-    hep.atlas.label(label='Internal',ax=ax,lumi=140)
+    hep.atlas.label(label='Internal',ax=ax)
 
     fig_name = output_path_new / f"Fraction.pdf"
     fig.savefig(fig_name)
@@ -536,16 +565,16 @@ def Plot_ForwardCentral_MCvsData(i_pt,pt, var, output_path, period, reweighting_
     # ax0.errorbar(x=bin_centers, y=unumpy.nominal_values(Forward_Data), yerr=unumpy.std_devs(Forward_Data), color = 'blue', label = 'Higher Data', marker='.', linestyle="none")
     # ax0.errorbar(x=bin_centers, y=unumpy.nominal_values(Central_Data), yerr=unumpy.std_devs(Central_Data), color = 'red', label = 'Lower Data', marker='.', linestyle="none")    
     hep.histplot(unumpy.nominal_values(Forward_Data),bins=bin_edges,ax=ax0,histtype='errorbar',marker='.',xerr=True,yerr=unumpy.std_devs(Forward_Data),color = 'black', label = 'Forward Data',markersize=5)
-    hep.histplot(unumpy.nominal_values(Central_Data),bins=bin_edges,ax=ax0,histtype='errorbar',yerr=unumpy.std_devs(Central_Data),xerr=True,marker='*',color = 'black', label = 'Lower Data',markersize=5)
-    hep.histplot(unumpy.nominal_values(Forward_MC),bins=bin_edges,ax=ax0,histtype='step',linestyle='-.',color = 'blue', label = 'Higher Pythia8')
-    hep.histplot(unumpy.nominal_values(Central_MC),bins=bin_edges,ax=ax0,histtype='step',linestyle='--',color = 'red', label = 'Lower Pythia8')
-    ax0.legend()
+    hep.histplot(unumpy.nominal_values(Central_Data),bins=bin_edges,ax=ax0,histtype='errorbar',yerr=unumpy.std_devs(Central_Data),xerr=True,marker='*',color = 'black', label = 'Central Data',markersize=5)
+    hep.histplot(unumpy.nominal_values(Forward_MC),bins=bin_edges,ax=ax0,histtype='step',linestyle='-.',color = 'blue', label = 'Forward MC')
+    hep.histplot(unumpy.nominal_values(Central_MC),bins=bin_edges,ax=ax0,histtype='step',linestyle='--',color = 'red', label = 'Central MC')
+    ax0.legend(loc='upper right')
     ax0.set_xlim(bin_edges[0], bin_edges[-1])
-    y_max = np.max(unumpy.nominal_values(Forward_Data))
+    y_max = np.max(unumpy.nominal_values(Central_Data))
     ax0.set_ylim(0, y_max * 1.3)
     #ampl.plot.draw_atlas_label(0.1, 0.85, ax=ax0, energy="13 TeV",lumi=140)
     hep.atlas.label(label='Internal',data=True,ax=ax0,lumi=140)
-
+    ax0.text(bin_edges[2],y_max*0.9,f'{pt} - {label_ptrange[i_pt+1]} GeV',fontsize=15)
     #ax0.set_title(f"{pt} GeV: MC vs Data " + rf"{Map_var_title[var]}"  + f" distribution, {reweighting_option}")
     if show_yields and not if_norm:
         n_Forward_MC = np.sum(unumpy.nominal_values(Forward_MC))
@@ -593,7 +622,7 @@ def Plot_Parton_ForwardvsCentral(i_pt,pt, var, output_path, period, reweighting_
 
     fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True, gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.1})
     # breakpoint()
-    y_max = np.max(unumpy.nominal_values(p_Forward_Quark))
+    y_max = np.max(unumpy.nominal_values(p_Central_Quark))#p_Central_Gluon
     ax0.set_ylim(0, y_max * 1.3)
     hep.histplot(unumpy.nominal_values(p_Forward_Quark),bins=bin_edges,ax=ax0,histtype='step',linestyle='-',color = 'blue', label = 'Forward  Quark')
     hep.histplot(unumpy.nominal_values(p_Central_Quark),bins=bin_edges,ax=ax0,histtype='step',linestyle='--',color = 'blue', label = 'Central  Quark')
@@ -605,7 +634,6 @@ def Plot_Parton_ForwardvsCentral(i_pt,pt, var, output_path, period, reweighting_
     # ax0.errorbar(x=bin_centers, y=unumpy.nominal_values(p_Central_Gluon), yerr=unumpy.std_devs(p_Central_Gluon), color = 'red', label = 'Lower Gluon', linestyle='--', drawstyle='steps-mid')    
     ax0.set_xlim(bin_edges[0], bin_edges[-1])
     ax0.set_ylabel("Normalized")
-    ax0.legend()
     # if var=="ntrk":
     #     ampl.plot.draw_atlas_label(0.6, 0.6, ax=ax0, energy="13 TeV",simulation=True,lumi=140)
     # elif pt==500:
@@ -622,6 +650,9 @@ def Plot_Parton_ForwardvsCentral(i_pt,pt, var, output_path, period, reweighting_
     # ax1.errorbar(x=bin_centers, y=unumpy.nominal_values(ratio_Quark), yerr=unumpy.std_devs(ratio_Quark), color = 'blue', label = 'Quark', drawstyle='steps-mid')
     # ax1.errorbar(x=bin_centers, y=unumpy.nominal_values(ratio_Gluon), yerr=unumpy.std_devs(ratio_Gluon), color = 'red', label = 'Gluon', drawstyle='steps-mid')
     hep.atlas.label(label='Internal',ax=ax0,lumi=140)
+    ax0.text(bin_edges[2],y_max*0.9,f'{pt} - {label_ptrange[i_pt+1]} GeV',fontsize=15)
+    ax0.legend(loc='upper right')
+
 
     ax1.set_ylabel("Forward/Central",fontsize=14)
     ax1.set_ylim(0.7, 1.3)
@@ -650,22 +681,25 @@ def Plot_Extracted_unumpy(i_pt,pt, var, output_path, period, reweighting_var, re
     plot_data_bin_error = unumpy.std_devs(plot_data)
 
     for i, jet_type in enumerate(jet_types):  # i is the idx of jet type
-        fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True, gridspec_kw={'height_ratios': [3, 1], 'hspace': 0})
+        fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True, gridspec_kw={'height_ratios': [3, 1], 'hspace': 0.05})
 
         # ax0.stairs(values = plot_data[i][0], edges = bin_edges, color = color_types[i], label = f'{jet_type}, extracted MC', baseline=None)
         # ax0.stairs(values = plot_data[i][1], edges = bin_edges, color = color_types[i], linestyle='--', label = f'{jet_type}, truth MC', baseline=None)
         # ax0.stairs(values = plot_data[i][2], edges = bin_edges, color = color_types[i], linestyle=':', label = f'{jet_type}, extracted Data', baseline=None)
-        ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][1], yerr = plot_data_bin_error[i][1], drawstyle = 'steps-mid', label = "Extracted MC", color= "red")
-        ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][2], yerr = plot_data_bin_error[i][2], drawstyle = 'steps-mid', label = "Extracted Data", color= "black", linestyle='', marker= ".",markersize=5)
-        
+        #ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][1], yerr = plot_data_bin_error[i][1], drawstyle = 'steps-mid', label = "Extracted MC", color= "red")
+        #ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][2], yerr = plot_data_bin_error[i][2], drawstyle = 'steps-mid', label = "Extracted Data", color= "black", linestyle='', marker= ".",markersize=5)
+        hep.histplot(plot_data_bin_content[i][1],bins=bin_edges,label='Extracted MC',ax=ax0,histtype='step',linestyle='-',color='orange',yerr=plot_data_bin_error[i][1])
+        hep.histplot(plot_data_bin_content[i][2],bins=bin_edges,label='Extracted Data',ax=ax0,histtype='errorbar',marker=".",color='black',yerr=plot_data_bin_error[i][2],markersize=7)
         ax0.set_xlim(bin_edges[0], bin_edges[-1])
-        ax0.legend()
+        ax0.legend(loc='upper right')
 
         y_max = np.max(plot_data_bin_content)
         ax0.set_ylim(-0.01, y_max * 1.3)
         ax0.set_ylabel("Normalized")
 #        ax0.set_title(f"{pt} GeV {jet_type}: Extracted " + rf"{Map_var_title[var]}"  + f" distribution, {reweighting_factor}")
         hep.atlas.label(label='Internal',data=True,ax=ax0,lumi=140)
+        ax0.text(bin_edges[2],y_max*0.9,f'{pt} - {label_ptrange[i_pt+1]} GeV {jet_type} jets',fontsize=15)
+
         if show_yields:
             ax0.text(x=0.3, y=0.04, 
             s = f"MC forward yield:{n_Forward_MC:.2e},central yield:{n_Central_MC:.2e} \n"+
@@ -675,11 +709,12 @@ def Plot_Extracted_unumpy(i_pt,pt, var, output_path, period, reweighting_var, re
             ha='left', va='bottom', transform=ax0.transAxes)
 
         ratio_data_over_extractedMC = safe_array_divide_unumpy(plot_data[i][2], plot_data[i][1])
-        ax1.errorbar(x = bin_centers, y = unumpy.nominal_values(ratio_data_over_extractedMC), yerr = unumpy.std_devs(ratio_data_over_extractedMC), drawstyle = 'steps-mid', color= "black", linestyle='', marker= ".")
+        #ax1.errorbar(x = bin_centers, y = unumpy.nominal_values(ratio_data_over_extractedMC), yerr = unumpy.std_devs(ratio_data_over_extractedMC), drawstyle = 'steps-mid', color= "black", linestyle='', marker= ".")
+        hep.histplot(unumpy.nominal_values(ratio_data_over_extractedMC),bins=bin_edges,ax=ax1,histtype='errorbar',yerr=unumpy.std_devs(ratio_data_over_extractedMC),marker=".",color='black',markersize=4)
 
         #ax1.legend()
         ax1.set_ylim(0.7,1.3)
-        ax1.set_ylabel("Data / MC",fontsize=8)
+        ax1.set_ylabel("Data / MC",fontsize=14)
         ax1.set_xlim(bin_edges[0], bin_edges[-1])
         ampl.plot.set_xlabel(f"{Map_var_title[var]}")
         ax1.hlines(y = 1, xmin = bin_edges[0], xmax = bin_edges[-1], color = 'black', linestyle = '--')
@@ -687,7 +722,7 @@ def Plot_Extracted_unumpy(i_pt,pt, var, output_path, period, reweighting_var, re
         if not output_path_new.exists():
             output_path_new.mkdir(parents = True)
 
-        fig.tight_layout()
+        #fig.tight_layout()
         fig.savefig( output_path_new / f"DataExtraction_{pt}_{jet_type}_{var}.pdf")
         plt.close()
 
@@ -713,7 +748,7 @@ def Plot_Closure_unumpy(i_pt,pt, var, output_path, period, reweighting_var, rewe
         #ax0.errorbar(x = bin_centers, y = plot_data_bin_content[i][0], yerr = plot_data_bin_error[i][0], drawstyle = 'steps-mid', label = "Truth MC",color="blue")
         
         ax0.set_xlim(bin_edges[0], bin_edges[-1])
-        ax0.legend()
+        ax0.legend(loc='upper right')
 
         y_max = np.max(plot_data_bin_content)
         ax0.set_ylim(-0.01, y_max * 1.3)
@@ -764,12 +799,12 @@ def Plot_WP(WP, var, output_path, period, reweighting_var, reweighting_factor,
         # ax0.errorbar(x = bin_centers, y = unumpy.nominal_values(quark_effs_data), yerr = unumpy.std_devs(quark_effs_data), label = "Quark Efficiency, Extracted Data", color= "blue", linestyle='none', marker= "o")
         # ax0.errorbar(x = bin_centers, y = unumpy.nominal_values(gluon_rejs_data), yerr = unumpy.std_devs(gluon_rejs_data), label = "Gluon Rejection, Extracted Data",color= "red", linestyle='none', marker= "o")
         hep.histplot(unumpy.nominal_values(quark_effs_data),bins=bin_edges,label='Quark Efficiency, Data',ax=ax0,histtype='errorbar',yerr = unumpy.std_devs(quark_effs_data),xerr=True,marker='.',color = "black")
-        hep.histplot(unumpy.nominal_values(quark_effs),bins=bin_edges,label='Quark Efficiency, Pythia8',ax=ax0,histtype='errorbar',yerr = unumpy.std_devs(quark_effs),xerr=True,marker='^',color = "blue",markersize=5)
+        hep.histplot(unumpy.nominal_values(quark_effs),bins=bin_edges,label='Quark Efficiency, MC',ax=ax0,histtype='errorbar',yerr = unumpy.std_devs(quark_effs),xerr=True,marker='o',color = "blue",mfc = 'none',markersize=6)
 
-        hep.histplot(unumpy.nominal_values(gluon_rejs_data),bins=bin_edges,label='Gluon Rejection, Data',ax=ax0,histtype='errorbar',yerr = unumpy.std_devs(gluon_rejs_data),xerr=True,marker='*',color = "black",markersize=6)
-        hep.histplot(unumpy.nominal_values(gluon_rejs),bins=bin_edges,label='Gluon Rejection, Pythia8',ax=ax0,histtype='errorbar',yerr = unumpy.std_devs(gluon_rejs),xerr=True,marker='v',color = "red",markersize=5)
+        hep.histplot(unumpy.nominal_values(gluon_rejs_data),bins=bin_edges,label='Gluon Rejection, Data',ax=ax0,histtype='errorbar',yerr = unumpy.std_devs(gluon_rejs_data),xerr=True,marker='^',color = "green",markersize=6)
+        hep.histplot(unumpy.nominal_values(gluon_rejs),bins=bin_edges,label='Gluon Rejection, MC',ax=ax0,histtype='errorbar',yerr = unumpy.std_devs(gluon_rejs),xerr=True,marker='^',color = "red",mfc = 'none',markersize=6)
 
-        ax0.legend()
+
         #ax0.set_yticks(np.linspace(0, 1, 21))
         #ax0.set_xticks(bin_edges)
         ax0.set_ylim(0.3, 1.4)
@@ -781,6 +816,9 @@ def Plot_WP(WP, var, output_path, period, reweighting_var, reweighting_factor,
         #ax0.grid()
 #        ax0.set_title(f"{var} for extracted q/g at {WP} WP")
         hep.atlas.label(label='Internal',data=True,ax=ax0,lumi=140)
+        WP1 =int(WP*100)
+        ax0.text(bin_edges[1],1.18,f'{WP1}% WP {Map_var_title1[var]}')
+        ax0.legend()
 
         # ax1.errorbar(x = bin_centers, y = unumpy.nominal_values(SF_quark), yerr = unumpy.std_devs(SF_quark), linestyle='none', label = "quark SF", marker='.')
         # ax1.errorbar(x = bin_centers, y = unumpy.nominal_values(SF_gluon), yerr = unumpy.std_devs(SF_gluon), linestyle='none', label = "gluon SF", marker='.')
@@ -939,8 +977,8 @@ def Calculate_SF(input_mc_path, input_data_path, period, reweighting_factor, out
                 SFs[var][WP]["Quark"] = SF_quark
                 SFs[var][WP]["Gluon"] = SF_gluon
 
-            #WriteSFtoPickle(var = var,Hist_SFs = SFs, output_path=output_path, period=period, reweighting_var = reweighting_var,
-            #            reweighting_factor= reweighting_map[reweighting_factor])
+            WriteSFtoPickle(var = var,Hist_SFs = SFs, output_path=output_path, period=period, reweighting_var = reweighting_var,
+                        reweighting_factor= reweighting_map[reweighting_factor])
         if reweighting_factor == "none":
             break 
 
